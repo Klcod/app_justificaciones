@@ -1,1 +1,0 @@
-Inicio del repositorio para la aplicación de 'app_justificaciones'
