@@ -97,7 +97,7 @@ class InicioPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RegistrarAlumnoPage(),
+                    builder: (context) => RegistrarAlumno(),
                   ),
                 );
               }),
@@ -114,7 +114,7 @@ class InicioPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => RegistrarMaestroPage(),
+                    builder: (context) => MyCustomForm(),
                   ),
                 );
               }),
