@@ -53,6 +53,9 @@ class NuevaJustificacionPage extends StatefulWidget {
             child: ElevatedButton(
               onPressed: () {},
               child: const Text('Enviar'),
+              style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromRGBO(199, 176, 112, 1)
+          ),
             ),
           ),
         ],

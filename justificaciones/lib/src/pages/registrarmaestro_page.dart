@@ -18,127 +18,115 @@ class MyCustomForm extends StatefulWidget {
 }
 
 class MyCustomFormState extends State<MyCustomForm> {
-  final _formKey = GlobalKey<FormState>();
+  String _nombre = '';
+  String _email = '';
+  String _nControl = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registrar maestros'),
-        titleTextStyle:
-         const TextStyle(
-          fontSize: 30,
-          fontWeight: FontWeight.bold,
-          
-          ),
+        title: Text('Registro Maestro'),
+        titleTextStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 81, 96, 143),
       ),
-      body: 
-      ListView(
-        children: <Widget> [
-        Form(
-          key: _formKey,
-          child: Column(
-      
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const SizedBox(height: 40.0),
-              TextFormField(
-                
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(30),
-                  labelText: 'Nombre',
-                  prefixIcon: Icon(
-                    Icons.person,
-                    color: Color.fromARGB(255, 199, 176, 112),
-                  ),
-                  
-                ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor ingresa tu nombre';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(30),
-                  labelText: 'Teléfono',
-                  prefixIcon: Icon(
-                    Icons.phone,
-                    color: Color.fromARGB(255, 199, 176, 112),
-                  ),
-      ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor ingresa tu teléfono';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(30),
-                  labelText: 'Correo',
-                  prefixIcon: Icon(
-                    Icons.email,
-                    color: Color.fromARGB(255, 199, 176, 112),
-                    ),
-                  ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor ingresa tu correo';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(30),
-                  labelText: 'Materia',
-                  prefixIcon: Icon(
-                    Icons.book,
-                    color: Color.fromARGB(255, 199, 176, 112),
-                    ),
-                  ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor ingresa la materia';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.all(30),
-                  labelText: 'Aula',
-                  prefixIcon: Icon(
-                    Icons.group,
-                    color: Color.fromARGB(255, 199, 176, 112)),
-                  ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Por favor ingresa el aula';
-                  }
-                  return null;
-                },
-              ),
-              Center(
-                child: ElevatedButton(
-                  onPressed: () {
-                    
-                  },
-                  
-                  child: const Text('Enviar'),
-                ),
-              ),
-            ],
+      body: ListView(
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+        children: <Widget>[
+          
+          _creaeNombre(),
+          Divider(),
+          _crearTelefono(),
+          Divider(),
+          _crearCorreo(),
+          Divider(),
+          _crearEsp(),
+          Divider(),
+          _crearAula(),
+          Divider(),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {},
+              child: const Text('Enviar'),
+              style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromRGBO(199, 176, 112, 1)
           ),
-       ),
-        ]
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _creaeNombre() {
+    return TextField(
+      //autofocus: true,
+      textCapitalization: TextCapitalization.sentences,
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: 'Nombre de la persona',
+          labelText: 'Nombre',
+          helperText: 'Nombre completo',
+          suffixIcon: Icon(Icons.accessibility),
+          iconColor: Color.fromARGB(255, 199, 176, 112),
+          icon: Icon(Icons.account_circle)),
+    );
+  }
+
+  Widget _crearTelefono() {
+    return TextField(
+        keyboardType: TextInputType.phone,
+        decoration: InputDecoration(
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+            hintText: 'Teléfono',
+            labelText: 'Teléfono',
+            suffixIcon: Icon(Icons.phone_outlined),
+            iconColor: Color.fromARGB(255, 199, 176, 112),
+            icon: Icon(Icons.phone)),
+        onChanged: (valor) => setState(() {
+              _email = valor;
+            }));
+  }
+
+  Widget _crearCorreo() {
+    return TextField(
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+            hintText: 'Correo',
+            labelText: 'Correo',
+            suffixIcon: Icon(Icons.email),
+            iconColor: Color.fromARGB(255, 199, 176, 112),
+            icon: Icon(Icons.email)),
+        onChanged: (valor) => setState(() {
+              _email = valor;
+            }));
+  }
+
+  Widget _crearEsp() {
+    return TextField(
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: 'Materia/Modulo',
+          labelText: 'Materia/Modulo',
+          suffixIcon: Icon(Icons.menu_book_sharp),
+          iconColor: Color.fromARGB(255, 199, 176, 112),
+          icon: Icon(Icons.book)),
+    );
+  }
+
+  Widget _crearAula() {
+    return TextField(
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: 'Aula',
+          labelText: 'Aula',
+          suffixIcon: Icon(Icons.group_outlined),
+          iconColor: Color.fromARGB(255, 199, 176, 112),
+          icon: Icon(Icons.group)),
     );
   }
 }
