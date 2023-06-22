@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:justificaciones/src/services/cuentas_service.dart';
+
+import 'package:provider/provider.dart';
+
 import 'package:justificaciones/src/pages/buscaralumno_page.dart';
 import 'package:justificaciones/src/pages/buscarmaestro_page.dart';
 import 'package:justificaciones/src/pages/inicio_page.dart';
 import 'package:justificaciones/src/pages/login_page.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(
+  MultiProvider(
+    providers: [
+    ChangeNotifierProvider(create: ( _ ) => CuentasService()),
+    ],
+    child: const MyApp(),
+  )
+);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -21,7 +32,6 @@ class MyApp extends StatelessWidget {
         'inicio' : ( BuildContext context) => const InicioPage(),
         'busA': ( BuildContext context) => const BuscarAlumnoPage(), 
         'busM': ( BuildContext context) => const BuscarMaestroPage(), 
-        
       },
       
 

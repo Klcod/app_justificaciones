@@ -4,6 +4,8 @@ import 'package:justificaciones/src/pages/buscarmaestro_page.dart';
 import 'package:justificaciones/src/pages/nuevajustificacion_page.dart';
 import 'package:justificaciones/src/pages/registraralumno_page.dart';
 import 'package:justificaciones/src/pages/registrarmaestro_page.dart';
+import 'package:justificaciones/src/services/storage_service.dart';
+import 'package:justificaciones/src/widgets/alert_dialog_custom.dart';
 
 class InicioPage extends StatelessWidget {
   const InicioPage({super.key});
@@ -118,7 +120,23 @@ class InicioPage extends StatelessWidget {
                   ),
                 );
               }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143))
+          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
+          ListTile(
+              leading: Icon(Icons.assignment_ind_outlined,
+                  size: 45, color: Color.fromARGB(255, 199, 176, 112)),
+              title: Text('Cerrar Sesión',
+                  style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
+              trailing: Icon(Icons.keyboard_arrow_right,
+                  size: 55, color: Color.fromARGB(255, 199, 176, 112)),
+              onTap: () async {
+                final storageService = StorageService.getInstace();
+                await storageService.deleteUserDataStorage();
+                if(context.mounted) {
+                  Navigator.pop(context);
+                  showDialog(context: context, builder:( _ ) => const AlertDialogCustom(title: '¡Chau!', message: 'Adios :(',));
+                }
+              }),
+          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
         ],
       ),
     );
