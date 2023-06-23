@@ -16,6 +16,7 @@ class CuentasService extends ChangeNotifier {
   Future<RespuestaApi> iniciarSesion(LoginModel loginModel) async {
     final url = Uri.parse('${Sistema.urlBase}/api/cuentas/login');
     final storageService = StorageService.getInstace();
+    await storageService.cargarStorages();
     RespuestaApi respuesta;
     isCargando = true;
     notifyListeners();
@@ -27,7 +28,9 @@ class CuentasService extends ChangeNotifier {
       final Map<String, dynamic> decodedData = json.decode(resp.body);
 
       if(resp.statusCode == 200) {
-        storageService.setUserDataStore(json.encode(['helper_data']));
+        await storageService.deleteUserDataStorage();
+        await storageService.setUserDataStore(json.encode(decodedData['helper_data']));
+        await storageService.cargarStorages();
       }
 
       respuesta = RespuestaApi.fromJson(decodedData);

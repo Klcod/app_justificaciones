@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:justificaciones/src/pages/buscaralumno_page.dart';
-import 'package:justificaciones/src/pages/buscarmaestro_page.dart';
 import 'package:justificaciones/src/pages/nuevajustificacion_page.dart';
 import 'package:justificaciones/src/pages/registraralumno_page.dart';
-import 'package:justificaciones/src/pages/registrarmaestro_page.dart';
 import 'package:justificaciones/src/services/storage_service.dart';
 import 'package:justificaciones/src/widgets/alert_dialog_custom.dart';
 
@@ -12,18 +10,20 @@ class InicioPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final storageService = StorageService.getInstace();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio'),
-        titleTextStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        titleTextStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(255, 81, 96, 143),
+        backgroundColor: const Color.fromARGB(255, 81, 96, 143),
       ),
 
       body: ListView(
         children: <Widget>[
 
-          Column(
+          const Column(
             children: <Widget>[
               SizedBox(height: 40.0),
               Text('Justificaciones',
@@ -33,50 +33,34 @@ class InicioPage extends StatelessWidget {
                       color: Color.fromARGB(255, 81, 96, 143)))
             ],
           ),
-
-          Padding(padding: EdgeInsets.only(bottom: 40)),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-
+          const Padding(padding: EdgeInsets.only(bottom: 40)),
+          if(storageService.hasRole('orientador'))
+          const Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
+          if(storageService.hasRole('orientador'))
           ListTile(
-              leading: Icon(Icons.search,
+              leading: const Icon(Icons.search,
                   size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Buscar alumno',
+              title: const Text('Buscar alumno',
                   style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
+              trailing: const Icon(Icons.keyboard_arrow_right,
                   size: 55, color: Color.fromARGB(255, 199, 176, 112)),
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => BuscarAlumnoPage(),
+                    builder: (context) => const BuscarAlumnoPage(),
                   ),
                 );
               }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-
+          if(storageService.hasRole('alumno'))
+          const Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
+          if(storageService.hasRole('alumno'))
           ListTile(
-              leading: Icon(Icons.search,
+              leading: const Icon(Icons.assignment_outlined,
                   size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Buscar maestro',
+              title: const Text('Nueva justificación',
                   style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
-                  size: 55, color: Color.fromARGB(255, 199, 176, 112)),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BuscarMaestroPage(),
-                  ),
-                );
-              }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-
-          ListTile(
-              leading: Icon(Icons.assignment_outlined,
-                  size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Nueva justificación',
-                  style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
+              trailing: const Icon(Icons.keyboard_arrow_right,
                   size: 55, color: Color.fromARGB(255, 199, 176, 112)),
               onTap: () {
                 Navigator.push(
@@ -86,14 +70,15 @@ class InicioPage extends StatelessWidget {
                   ),
                 );
               }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-
+          if(storageService.hasRole('orientador'))
+          const Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
+          if(storageService.hasRole('orientador'))
           ListTile(
-              leading: Icon(Icons.assignment_ind_outlined,
+              leading: const Icon(Icons.assignment_ind_outlined,
                   size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Registrar alumno',
+              title: const Text('Registrar alumno',
                   style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
+              trailing: const Icon(Icons.keyboard_arrow_right,
                   size: 55, color: Color.fromARGB(255, 199, 176, 112)),
               onTap: () {
                 Navigator.push(
@@ -103,30 +88,13 @@ class InicioPage extends StatelessWidget {
                   ),
                 );
               }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-
+          const Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
           ListTile(
-              leading: Icon(Icons.assignment_ind_outlined,
+              leading: const Icon(Icons.assignment_ind_outlined,
                   size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Registrar maestro',
+              title: const Text('Cerrar Sesión',
                   style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
-                  size: 55, color: Color.fromARGB(255, 199, 176, 112)),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MyCustomForm(),
-                  ),
-                );
-              }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
-          ListTile(
-              leading: Icon(Icons.assignment_ind_outlined,
-                  size: 45, color: Color.fromARGB(255, 199, 176, 112)),
-              title: Text('Cerrar Sesión',
-                  style: TextStyle(fontSize: 25), textAlign: TextAlign.center),
-              trailing: Icon(Icons.keyboard_arrow_right,
+              trailing: const Icon(Icons.keyboard_arrow_right,
                   size: 55, color: Color.fromARGB(255, 199, 176, 112)),
               onTap: () async {
                 final storageService = StorageService.getInstace();
@@ -136,7 +104,7 @@ class InicioPage extends StatelessWidget {
                   showDialog(context: context, builder:( _ ) => const AlertDialogCustom(title: '¡Chau!', message: 'Adios :(',));
                 }
               }),
-          Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
+          const Divider(thickness: 1, color: Color.fromARGB(255, 81, 96, 143)),
         ],
       ),
     );
