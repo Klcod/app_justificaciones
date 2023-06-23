@@ -64,4 +64,8 @@ class StorageService {
 
     return hasRole;
   }
+
+  String getTokenUser() {
+    return userDataDecoded['token'] ?? '';
+  }
 }

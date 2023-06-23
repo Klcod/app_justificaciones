@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:justificaciones/src/services/cuentas_service.dart';
+import 'package:justificaciones/src/services/grupos_service.dart';
 
 import 'package:provider/provider.dart';
 
@@ -12,6 +13,7 @@ void main() => runApp(
   MultiProvider(
     providers: [
     ChangeNotifierProvider(create: ( _ ) => CuentasService()),
+    ChangeNotifierProvider(create: ( _ ) => GruposService()),
     ],
     child: const MyApp(),
   )

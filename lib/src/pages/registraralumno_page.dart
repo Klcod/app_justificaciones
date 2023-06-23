@@ -1,46 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:justificaciones/src/models/grupo.dart';
+import 'package:justificaciones/src/services/grupos_service.dart';
+import 'package:provider/provider.dart';
 
 class RegistrarAlumno extends StatefulWidget {
+  const RegistrarAlumno({super.key});
+
   //const name({super.key});
   @override
-  _RegistrarAlumnoState createState() => _RegistrarAlumnoState();
+  State<RegistrarAlumno> createState() => _RegistrarAlumnoState();
 }
 
 class _RegistrarAlumnoState extends State<RegistrarAlumno> {
 //Capturar datos
-  String _nombre = '';
-  String _email = '';
-  String _nControl = '';
+  final Map<String, dynamic> datosAlumno = {
+    'nombre'           : '',
+    'apellido_paterno' : '',
+    'apellido_materno' : '',
+    'numero_control'   : '',
+    'email'            : '',
+    'password'         : '',
+    'grupo_id'         : 0
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _initApp();
+  }
+
+  _initApp() {
+    final gruposService = Provider.of<GruposService>(context, listen: false);
+    gruposService.cargarGrupos();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final gruposService = Provider.of<GruposService>(context);
+    final isCargando = context.select((GruposService g) => g.isCargado);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registro Alumno'),
-        titleTextStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        title: const Text('Registro Alumno'),
+        titleTextStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 81, 96, 143),
       ),
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         children: <Widget>[
-          _NumControl(),
-          Divider(),
-          _creaeNombre(),
-          Divider(),
-          _crearTelefono(),
-          Divider(),
-          _crearEsp(),
-          Divider(),
-          _crearAula(),
-          Divider(),
+          _nombreInput(),
+          const Divider(),
+          _apellidoPaternoInput(),
+          const Divider(),
+          _apellidoMaternoInput(),
+          const Divider(),
+          _numControlInput(),
+          const Divider(),
+          _correoInput(),
+          const Divider(),
+          _contrasenaInput(),
+          const Divider(),
+          if(!isCargando)
+          _grupoInput(context, gruposService),
+          if(!isCargando)
+          const Divider(),
           Center(
             child: ElevatedButton(
               onPressed: () {},
-              child: const Text('Enviar'),
              style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromRGBO(199, 176, 112, 1)
+            backgroundColor: const Color.fromRGBO(199, 176, 112, 1)
           ),
+              child: const Text('Enviar'),
             ),
           ),
         ],
@@ -48,74 +79,104 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
     );
   }
 
-  Widget _NumControl() {
-    return TextField(
+  Widget _nombreInput() {
+    return TextFormField(
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-            hintText: 'N° Control',
-            labelText: 'N° Control',
-            suffixIcon: Icon(Icons.center_focus_strong_outlined),
-            iconColor: Color.fromARGB(255, 199, 176, 112),
-            icon: Icon(Icons.center_focus_strong_outlined)),
-        onChanged: (valor) => setState(() {
-              _nControl = valor;
-            }));
+            hintText: 'Nombre del alumno',
+            labelText: 'Nombre',
+            suffixIcon: const Icon(Icons.center_focus_strong_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.center_focus_strong_outlined)),
+        onChanged: (valor) => datosAlumno['nombre'] = valor);
   }
 
-  Widget _creaeNombre() {
-    return TextField(
+  Widget _apellidoPaternoInput() {
+    return TextFormField(
       //autofocus: true,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Nombre de la persona',
+          hintText: 'Apellido Paterno del Alumno',
           labelText: 'Nombre',
           helperText: 'Nombre completo',
-          suffixIcon: Icon(Icons.accessibility),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.account_circle)),
+          suffixIcon: const Icon(Icons.accessibility),
+          iconColor: const Color.fromARGB(255, 199, 176, 112),
+          icon: const Icon(Icons.account_circle)),
     );
   }
 
-  Widget _crearTelefono() {
-    return TextField(
+  Widget _apellidoMaternoInput() {
+    return TextFormField(
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-            hintText: 'Teléfono',
-            labelText: 'Teléfono',
-            suffixIcon: Icon(Icons.phone_outlined),
-            iconColor: Color.fromARGB(255, 199, 176, 112),
-            icon: Icon(Icons.phone)),
-        onChanged: (valor) => setState(() {
-              _email = valor;
-            }));
+            hintText: 'Apellido Materno del Alumno',
+            labelText: 'Apellido Materno',
+            suffixIcon: const Icon(Icons.phone_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.phone)),
+        onChanged: (valor) => datosAlumno['apellido_materno'] = valor);
   }
 
-  Widget _crearEsp() {
-    return TextField(
+  Widget _numControlInput() {
+    return TextFormField(
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Especialidad',
-          labelText: 'Especialidad',
-          suffixIcon: Icon(Icons.menu_book_sharp),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.book)),
+          hintText: 'No° de Control del Alumno',
+          labelText: 'No° de Control',
+          suffixIcon: const Icon(Icons.menu_book_sharp),
+          iconColor: const Color.fromARGB(255, 199, 176, 112),
+          icon: const Icon(Icons.book)),
     );
   }
 
-  Widget _crearAula() {
-    return TextField(
+  Widget _correoInput() {
+    return TextFormField(
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Aula',
-          labelText: 'Aula',
-          suffixIcon: Icon(Icons.group_outlined),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.group)),
+          hintText: 'Correo Electrónico del Alumno',
+          labelText: 'Correo Electrónico',
+          suffixIcon: const Icon(Icons.group_outlined),
+          iconColor: const Color.fromARGB(255, 199, 176, 112),
+          icon: const Icon(Icons.group)),
+      onChanged: (value) => datosAlumno['email'] = value
+    );
+  }
+
+  Widget _contrasenaInput() {
+    return TextFormField(
+      decoration: InputDecoration(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+          hintText: 'Contraseña del Alumno',
+          labelText: 'Contraseña',
+          suffixIcon: const Icon(Icons.group_outlined),
+          iconColor: const Color.fromARGB(255, 199, 176, 112),
+          icon: const Icon(Icons.group)),
+      onChanged: (value) => datosAlumno['password'] = value
+    );
+  }
+
+  Widget _grupoInput(BuildContext context, GruposService grupService) {
+    final grupos = grupService.grupos;
+
+    return Column(
+      children: [
+        const Text('Seleccione el Grupo del Alumno'),
+        DropdownButtonFormField<Grupo>(
+          items: grupos.map<DropdownMenuItem<Grupo>>((e) => DropdownMenuItem(
+            value: e,
+            child: Text(e.nombre),
+          ),).toList(),
+          onChanged: (value){
+            grupService.cambiarGrupoSeleccionado(value);
+            datosAlumno['grupo_id'] = value?.id ?? 0;
+          },
+        )
+      ],
     );
   }
 }
