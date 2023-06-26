@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:justificaciones/src/pages/buscargrupo_page.dart';
 import 'package:justificaciones/src/pages/nuevogrupo_page.dart';
 import 'package:justificaciones/src/pages/registraralumno_page.dart';
 import 'package:justificaciones/src/services/cuentas_service.dart';
 import 'package:justificaciones/src/services/grupos_service.dart';
+import 'package:justificaciones/src/services/usuarios_service.dart';
 
 import 'package:provider/provider.dart';
 
@@ -16,6 +18,7 @@ void main() => runApp(
     providers: [
     ChangeNotifierProvider(create: ( _ ) => CuentasService()),
     ChangeNotifierProvider(create: ( _ ) => GruposService()),
+    ChangeNotifierProvider(create: ( _ ) => UsuariosService()),
     ],
     child: const MyApp(),
   )
@@ -36,6 +39,7 @@ class MyApp extends StatelessWidget {
         'inicio' : ( BuildContext context) => const InicioPage(),
         'registrar-alumno': (BuildContext context) => const RegistrarAlumno(),
         'registrar-grupo' : (BuildContext context) => RegistrarGrupo(),
+        'busG': (BuildContext context) => const BuscarGrupoPage(),
         'busA': ( BuildContext context) => const BuscarAlumnoPage(), 
         'busM': ( BuildContext context) => const BuscarMaestroPage(), 
       },

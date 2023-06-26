@@ -20,8 +20,8 @@ class GruposService extends ChangeNotifier {
 
   GruposService();
 
-  Future<void> cargarGrupos() async {
-    final url = Uri.parse("${Sistema.urlBase}/api/grupos/with-users");
+  Future<void> cargarGrupos({String parametroBusqueda = ''}) async {
+    final url = Uri.parse("${Sistema.urlBase}/api/grupos/with-users?param$parametroBusqueda");
     final storageService = StorageService.getInstace();
     
     isCargado = true;
@@ -29,10 +29,7 @@ class GruposService extends ChangeNotifier {
     try {
       await storageService.cargarStorages();
       final token = storageService.getTokenUser();
-      if(token.isEmpty) {
-        await cargarGruposSinAuth();
-        return;
-      }
+      if(token.isEmpty) return;
 
       final resp = await http.get(url, headers: {
         'Authorization': 'Bearer $token'
@@ -56,28 +53,6 @@ class GruposService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> cargarGruposSinAuth() async {
-    final url = Uri.parse("${Sistema.urlBase}/api/grupos");
-    
-    isCargado = true;
-    notifyListeners();
-
-    try {
-
-      final resp = await http.get(url);
-
-      final List<dynamic> listaGrupos = json.decode(resp.body);
-
-      for(var grupoMap in listaGrupos) {
-        final temGrupo = Grupo.fromJson(grupoMap);
-        grupos.add(temGrupo);
-      }
-    } catch (e) {
-      grupos.clear();
-    }
-    isCargado = false;
-    notifyListeners();
-  }
 
   Future<RespuestaApi> crear(Map<String, String> grupo) async {
     final url = Uri.parse("${Sistema.urlBase}/api/grupos");
