@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:justificaciones/src/models/grupo.dart';
+import 'package:justificaciones/src/services/cuentas_service.dart';
 import 'package:justificaciones/src/services/grupos_service.dart';
 import 'package:provider/provider.dart';
+
+import '../widgets/alert_dialog_custom.dart';
 
 class RegistrarAlumno extends StatefulWidget {
   const RegistrarAlumno({super.key});
@@ -14,14 +17,16 @@ class RegistrarAlumno extends StatefulWidget {
 class _RegistrarAlumnoState extends State<RegistrarAlumno> {
 //Capturar datos
   final Map<String, dynamic> datosAlumno = {
-    'nombre'           : '',
-    'apellido_paterno' : '',
-    'apellido_materno' : '',
-    'numero_control'   : '',
-    'email'            : '',
-    'password'         : '',
-    'grupo_id'         : 0
+    'nombre': '',
+    'apellido_paterno': '',
+    'apellido_materno': '',
+    'numero_control': '',
+    'email': '',
+    'password': '',
+    'grupo_id': 0
   };
+
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -39,54 +44,95 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
   @override
   Widget build(BuildContext context) {
     final gruposService = Provider.of<GruposService>(context);
+    final cuentasService = Provider.of<CuentasService>(context, listen: false);
     final isCargando = context.select((GruposService g) => g.isCargadoCrear);
-    final isCargandoCrear = context.select((GruposService g) => g.isCargadoCrear);
+    final isCargandoCrear = context.select((CuentasService g) => g.isCargando);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Registro Alumno'),
-        titleTextStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        titleTextStyle:
+            const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 81, 96, 143),
       ),
-      body: isCargandoCrear ? const Center(child: Text('Creando Alumno'),) : ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-        children: <Widget>[
-          _nombreInput(),
-          const Divider(),
-          _apellidoPaternoInput(),
-          const Divider(),
-          _apellidoMaternoInput(),
-          const Divider(),
-          _numControlInput(),
-          const Divider(),
-          _correoInput(),
-          const Divider(),
-          _contrasenaInput(),
-          const Divider(),
-          if(!isCargando)
-          _grupoInput(context, gruposService),
-          if(!isCargando)
-          const Divider(),
-          Center(
-            child: ElevatedButton(
-              onPressed: () async {
-                
-              },
-             style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(199, 176, 112, 1)
-          ),
-              child: const Text('Enviar'),
+      body: isCargandoCrear
+          ? const Center(
+              child: Text('Creando Alumno'),
+            )
+          : Form(
+              key: formKey,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0, vertical: 20.0),
+                children: <Widget>[
+                  _nombreInput(),
+                  const Divider(),
+                  _apellidoPaternoInput(),
+                  const Divider(),
+                  _apellidoMaternoInput(),
+                  const Divider(),
+                  _numControlInput(),
+                  const Divider(),
+                  _correoInput(),
+                  const Divider(),
+                  _contrasenaInput(),
+                  const Divider(),
+                  if (!isCargando) _grupoInput(context, gruposService),
+                  if (!isCargando) const Divider(),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final isFormularioValido =
+                            formKey.currentState?.validate() ?? false;
+
+                        if (!isFormularioValido) {
+                          showDialog(
+                              context: context,
+                              builder: (_) => const AlertDialogCustom(
+                                    title: '¡Error!',
+                                    message: 'El formulario no valido.',
+                                  ));
+                          return;
+                        }
+
+                        final response =
+                            await cuentasService.registrarAlumno(datosAlumno);
+
+                        if (!response.success) {
+                          if (context.mounted) {
+                            showDialog(
+                                context: context,
+                                builder: (_) => AlertDialogCustom(
+                                    title: '¡Error!',
+                                    message: response.message));
+                          }
+                          return;
+                        }
+
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                          showDialog(
+                              context: context,
+                              builder: (_) => AlertDialogCustom(
+                                  title: '¡Correcto!',
+                                  message: response.message));
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromRGBO(199, 176, 112, 1)),
+                      child: const Text('Enviar'),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
     );
   }
 
   Widget _nombreInput() {
     return TextFormField(
-        keyboardType: TextInputType.number,
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -109,12 +155,13 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
           suffixIcon: const Icon(Icons.accessibility),
           iconColor: const Color.fromARGB(255, 199, 176, 112),
           icon: const Icon(Icons.account_circle)),
+      onChanged: (value) => datosAlumno['apellido_paterno'] = value,
     );
   }
 
   Widget _apellidoMaternoInput() {
     return TextFormField(
-        keyboardType: TextInputType.phone,
+        
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -128,6 +175,7 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
 
   Widget _numControlInput() {
     return TextFormField(
+      keyboardType: TextInputType.number,
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
           hintText: 'No° de Control del Alumno',
@@ -135,34 +183,36 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
           suffixIcon: const Icon(Icons.menu_book_sharp),
           iconColor: const Color.fromARGB(255, 199, 176, 112),
           icon: const Icon(Icons.book)),
-          maxLength: 14,
+      maxLength: 14,
+      onChanged: (value) => datosAlumno['numero_control'] = value,
     );
   }
 
   Widget _correoInput() {
     return TextFormField(
-      decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Correo Electrónico del Alumno',
-          labelText: 'Correo Electrónico',
-          suffixIcon: const Icon(Icons.group_outlined),
-          iconColor: const Color.fromARGB(255, 199, 176, 112),
-          icon: const Icon(Icons.group)),
-      onChanged: (value) => datosAlumno['email'] = value
-    );
+      keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+            hintText: 'Correo Electrónico del Alumno',
+            labelText: 'Correo Electrónico',
+            suffixIcon: const Icon(Icons.group_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.group)),
+        onChanged: (value) => datosAlumno['email'] = value);
   }
 
   Widget _contrasenaInput() {
     return TextFormField(
-      decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Contraseña del Alumno',
-          labelText: 'Contraseña',
-          suffixIcon: const Icon(Icons.group_outlined),
-          iconColor: const Color.fromARGB(255, 199, 176, 112),
-          icon: const Icon(Icons.group)),
-      onChanged: (value) => datosAlumno['password'] = value
-    );
+        decoration: InputDecoration(
+            border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
+            hintText: 'Contraseña del Alumno',
+            labelText: 'Contraseña',
+            suffixIcon: const Icon(Icons.group_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.group)),
+        onChanged: (value) => datosAlumno['password'] = value);
   }
 
   Widget _grupoInput(BuildContext context, GruposService grupService) {
@@ -173,11 +223,15 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
       children: [
         const Text('Seleccione el Grupo del Alumno'),
         DropdownButtonFormField<Grupo>(
-          items: grupos.map<DropdownMenuItem<Grupo>>((e) => DropdownMenuItem(
-            value: e,
-            child: Text(e.nombre),
-          ),).toList(),
-          onChanged: (value){
+          items: grupos
+              .map<DropdownMenuItem<Grupo>>(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Text(e.nombre),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
             grupService.cambiarGrupoSeleccionado(value);
             datosAlumno['grupo_id'] = value?.id ?? 0;
           },

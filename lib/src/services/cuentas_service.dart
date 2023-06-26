@@ -46,10 +46,14 @@ class CuentasService extends ChangeNotifier {
     final url = Uri.parse("${Sistema.urlBase}/api/cuentas/register/alumno");
     final storageService = StorageService.getInstace();
 
+    isCargando = true;
+    notifyListeners();
+
     await storageService.cargarStorages();
 
     final resp = await http.post(url, body: json.encode(alumno), headers: {
-      'Authorization': 'Bearer ${storageService.getTokenUser()}'
+      'Authorization': 'Bearer ${storageService.getTokenUser()}',
+      'Content-Type' : 'application/json'
     });
     final Map<String, dynamic> decodedData = json.decode(resp.body);
 
@@ -72,10 +76,14 @@ class CuentasService extends ChangeNotifier {
       });
 
       response.message = stringBuffer.toString();
+
+      isCargando = false;
+      notifyListeners();
       
       return response;
     }
-
+    isCargando = false;
+    notifyListeners();
     return RespuestaApi.fromJson(decodedData);
   }
 }
