@@ -15,10 +15,9 @@ class GruposService extends ChangeNotifier {
   Grupo? grupoSeleccionado;
 
   bool isCargado = false;
+  bool isCargadoCrear = false;
 
-  GruposService() {
-    cargarGrupos();
-  }
+  GruposService();
 
   Future<void> cargarGrupos() async {
     final url = Uri.parse("${Sistema.urlBase}/api/grupos/with-users");
@@ -40,6 +39,8 @@ class GruposService extends ChangeNotifier {
 
       if(resp.statusCode == 200) {
         final List<dynamic> listaGrupos = json.decode(resp.body);
+
+        grupos.clear();
 
         for(var grupoMap in listaGrupos) {
           final Map<String, dynamic> grupoMapTemp = grupoMap;

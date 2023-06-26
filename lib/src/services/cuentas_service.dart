@@ -41,4 +41,41 @@ class CuentasService extends ChangeNotifier {
     notifyListeners();
     return respuesta;
   }
+
+  Future<RespuestaApi> registrarAlumno(Map<String, dynamic> alumno) async {
+    final url = Uri.parse("${Sistema.urlBase}/api/cuentas/register/alumno");
+    final storageService = StorageService.getInstace();
+
+    await storageService.cargarStorages();
+
+    final resp = await http.post(url, body: json.encode(alumno), headers: {
+      'Authorization': 'Bearer ${storageService.getTokenUser()}'
+    });
+    final Map<String, dynamic> decodedData = json.decode(resp.body);
+
+    if(decodedData.containsKey('errors')) {
+      final response = RespuestaApi(success: false, message: '');
+      final Map<String, dynamic> errors = decodedData['errors'];
+      StringBuffer stringBuffer = StringBuffer();
+
+      stringBuffer.write('Tienes los siguientes errores de validacion:\n');
+
+      errors.forEach((key, value) {
+        if(key == 'password') {
+          stringBuffer.write('contraseña:\n');
+        } else {
+          stringBuffer.write(key);
+        }
+        for(var error in value) {
+          stringBuffer.write('\t $error \n');
+        }
+      });
+
+      response.message = stringBuffer.toString();
+      
+      return response;
+    }
+
+    return RespuestaApi.fromJson(decodedData);
+  }
 }

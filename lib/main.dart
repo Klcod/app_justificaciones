@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:justificaciones/src/pages/registraralumno_page.dart';
 import 'package:justificaciones/src/services/cuentas_service.dart';
 import 'package:justificaciones/src/services/grupos_service.dart';
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/' : ( _ ) => const LoginPage(),
         'inicio' : ( BuildContext context) => const InicioPage(),
+        'registrar-alumno': (BuildContext context) => const RegistrarAlumno(),
         'busA': ( BuildContext context) => const BuscarAlumnoPage(), 
         'busM': ( BuildContext context) => const BuscarMaestroPage(), 
       },

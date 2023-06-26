@@ -26,18 +26,21 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
   @override
   void initState() {
     super.initState();
-    _initApp();
+    Future.delayed(const Duration(seconds: 1), () {
+      _initApp();
+    });
   }
 
-  _initApp() {
+  _initApp() async {
     final gruposService = Provider.of<GruposService>(context, listen: false);
-    gruposService.cargarGrupos();
+    await gruposService.cargarGrupos();
   }
 
   @override
   Widget build(BuildContext context) {
     final gruposService = Provider.of<GruposService>(context);
-    final isCargando = context.select((GruposService g) => g.isCargado);
+    final isCargando = context.select((GruposService g) => g.isCargadoCrear);
+    final isCargandoCrear = context.select((GruposService g) => g.isCargadoCrear);
 
     return Scaffold(
       appBar: AppBar(
@@ -46,7 +49,7 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 81, 96, 143),
       ),
-      body: ListView(
+      body: isCargandoCrear ? const Center(child: Text('Creando Alumno'),) : ListView(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
         children: <Widget>[
           _nombreInput(),
@@ -67,7 +70,9 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
           const Divider(),
           Center(
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                
+              },
              style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromRGBO(199, 176, 112, 1)
           ),
@@ -100,8 +105,7 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
           hintText: 'Apellido Paterno del Alumno',
-          labelText: 'Nombre',
-          helperText: 'Nombre completo',
+          labelText: 'Apellido Paterno',
           suffixIcon: const Icon(Icons.accessibility),
           iconColor: const Color.fromARGB(255, 199, 176, 112),
           icon: const Icon(Icons.account_circle)),
@@ -131,6 +135,7 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
           suffixIcon: const Icon(Icons.menu_book_sharp),
           iconColor: const Color.fromARGB(255, 199, 176, 112),
           icon: const Icon(Icons.book)),
+          maxLength: 14,
     );
   }
 
@@ -164,6 +169,7 @@ class _RegistrarAlumnoState extends State<RegistrarAlumno> {
     final grupos = grupService.grupos;
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Seleccione el Grupo del Alumno'),
         DropdownButtonFormField<Grupo>(
