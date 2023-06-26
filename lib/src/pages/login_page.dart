@@ -68,6 +68,7 @@ class _LoginPageState extends State<LoginPage> {
                       showDialog(context: context,
                         builder: ( _ ) => AlertDialogCustom(title: '¡Error!', message: respuesta.message));
                     }
+                    return;
                   }
 
                   if(context.mounted) {

@@ -1,232 +1,263 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import 'package:justificaciones/src/services/justificaciones_service.dart';
+import 'package:provider/provider.dart';
+
+import '../widgets/alert_dialog_custom.dart';
 
 class NuevaJustificacionPage extends StatefulWidget {
+  const NuevaJustificacionPage({super.key});
+
   //const NuevaJustificacionPage({super.key});
 
   @override
-  _nuevaJustificacionState createState() => _nuevaJustificacionState();
+  NuevaJustificacionState createState() => NuevaJustificacionState();
 }
 
-  class _nuevaJustificacionState extends State<NuevaJustificacionPage> {
+  class NuevaJustificacionState extends State<NuevaJustificacionPage> {
 
-  String _nombre = '';
-  String _email = '';
-  String _nControl = '';
   String _fecha = '';
 
-  String _opcionSeleccionada = 'Salud';
+  final List<String> _poderes = ['Salud', 'Examen en otra universidad', 'Problemas familiares', 'otro'];
 
-  List<String> _poderes = ['Salud', 'Examen en otra universidad', 'Problemas familiares', 'otro'];
+  final TextEditingController _inputFechaInicio = TextEditingController();
+  final TextEditingController _inputFechaFin = TextEditingController();
 
-  TextEditingController _inputFieldDateController = new TextEditingController();
+  final Map<String, dynamic> datosJustificacion = {
+    'identificador': '',
+    'fecha_inicio' : '',
+    'fecha_fin' : '',
+    'motivo': '',
+    'email_docente': ''
+  };
+
+  final formKey = GlobalKey<FormState>();
 
 
   @override
   Widget build(BuildContext context) {
+    final isCreando = context.select((JustificacionesService j) => j.isCargadoCrear);
+    final justificacionesService = Provider.of<JustificacionesService>(context, listen: false);
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Nueva Justificación'),
-          titleTextStyle: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          titleTextStyle: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           centerTitle: true,
-          backgroundColor: Color.fromARGB(255, 81, 96, 143),
+          backgroundColor: const Color.fromARGB(255, 81, 96, 143),
         ),
-       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
-        children: <Widget>[
-          _NumControl(),
-          Divider(),
-          _creaeNombre(),
-          Divider(),
-          _crearTelefono(),
-          Divider(),
-          _crearEsp(),
-          Divider(),
-          _crearAula(),
-          Divider(),
-          _crearDropdown(),
-          Divider(),
-          _crearFechainicio(context), 
-          Divider(),
-          _crearFechafin(context), 
-          Divider(),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {},
-              child: const Text('Enviar'),
-              style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromRGBO(199, 176, 112, 1)
-          ),
+       body: isCreando ? const Center(child: Text('Creando...'),) : Form(
+        autovalidateMode: AutovalidateMode.always,
+        key: formKey,
+         child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20.0),
+          children: <Widget>[
+            _identificadorInput(),
+            const Divider(),
+            _motivoInput(),
+            const Divider(),
+            _emailDocenteInput(),
+            const Divider(),
+            _crearFechainicio(context), 
+            const Divider(),
+            _crearFechafin(context), 
+            const Divider(),
+            Center(
+              child: ElevatedButton(
+                onPressed: () async {
+                  final isFormularioValido =
+                              formKey.currentState?.validate() ?? false;
+       
+                          if (!isFormularioValido) {
+                            showDialog(
+                                context: context,
+                                builder: (_) => const AlertDialogCustom(
+                                      title: '¡Error!',
+                                      message: 'El formulario no valido.',
+                                    ));
+                            return;
+                          }
+       
+                          final response =
+                              await justificacionesService.crear(datosJustificacion);
+       
+                          if (!response.success) {
+                            if (context.mounted) {
+                              showDialog(
+                                  context: context,
+                                  builder: (_) => AlertDialogCustom(
+                                      title: '¡Error!',
+                                      message: response.message));
+                            }
+                            return;
+                          }
+       
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            showDialog(
+                                context: context,
+                                builder: (_) => AlertDialogCustom(
+                                    title: '¡Correcto!',
+                                    message: response.message));
+                          }
+                },
+                style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(199, 176, 112, 1)
             ),
-          ),
-        ],
-      ),
+                child: const Text('Enviar'),
+              ),
+            ),
+          ],
+             ),
+       ),
     );
   }
 
-  Widget _NumControl() {
-    return TextField(
-        keyboardType: TextInputType.number,
+  Widget _identificadorInput() {
+    return TextFormField(
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-            hintText: 'N° Control',
-            labelText: 'N° Control',
-            suffixIcon: Icon(Icons.center_focus_strong_outlined),
-            iconColor: Color.fromARGB(255, 199, 176, 112),
-            icon: Icon(Icons.center_focus_strong_outlined)),
-        onChanged: (valor) => setState(() {
-              _nControl = valor;
-            }));
+            hintText: 'Identificador de la justificacion',
+            labelText: 'Identificador',
+            suffixIcon: const Icon(Icons.center_focus_strong_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.center_focus_strong_outlined)),
+            validator: (valor) => valor == null || valor.isEmpty ? 'Este campo es necesario' : null,
+        onChanged: (valor) => datosJustificacion['identificador'] = valor);
   }
 
-  Widget _creaeNombre() {
-    return TextField(
+  Widget _motivoInput() {
+    return TextFormField(
       //autofocus: true,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Nombre de la persona',
-          labelText: 'Nombre',
-          helperText: 'Nombre completo',
-          suffixIcon: Icon(Icons.accessibility),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.account_circle)),
+          hintText: 'Motivo de la justificacion',
+          labelText: 'Motivo',
+          suffixIcon: const Icon(Icons.accessibility),
+          iconColor: const Color.fromARGB(255, 199, 176, 112),
+          icon: const Icon(Icons.account_circle)),
+          maxLines: null,
+        validator: (valor) => valor == null || valor.isEmpty ? 'Este campo es necesario' : null,
+        onChanged: (valor) => datosJustificacion['motivo'] = valor
     );
   }
 
-  Widget _crearTelefono() {
-    return TextField(
-        keyboardType: TextInputType.phone,
+  Widget _emailDocenteInput() {
+    return TextFormField(
+        keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
             border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-            hintText: 'Teléfono',
-            labelText: 'Teléfono',
-            suffixIcon: Icon(Icons.phone_outlined),
-            iconColor: Color.fromARGB(255, 199, 176, 112),
-            icon: Icon(Icons.phone)),
-        onChanged: (valor) => setState(() {
-              _email = valor;
-            }));
-  }
-
-  Widget _crearEsp() {
-    return TextField(
-      decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Especialidad',
-          labelText: 'Especialidad',
-          suffixIcon: Icon(Icons.menu_book_sharp),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.book)),
-    );
-  }
-
-  Widget _crearAula() {
-    return TextField(
-      decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20.0)),
-          hintText: 'Aula',
-          labelText: 'Aula',
-          suffixIcon: Icon(Icons.group_outlined),
-          iconColor: Color.fromARGB(255, 199, 176, 112),
-          icon: Icon(Icons.group)),
-    );
+            hintText: 'Email del docente',
+            labelText: 'Email del docente',
+            suffixIcon: const Icon(Icons.phone_outlined),
+            iconColor: const Color.fromARGB(255, 199, 176, 112),
+            icon: const Icon(Icons.phone)),
+            validator: (valor) => valor == null || valor.isEmpty ? 'Este campo es necesario' : null,
+            onChanged: (valor) => datosJustificacion['email_docente'] = valor
+      );
   }
 
   List<DropdownMenuItem<String>> getOpcionesDropdown() {
 
     List<DropdownMenuItem<String>> lista = [];
     
-    _poderes.forEach((motivo) { 
+    for (var motivo in _poderes) { 
       lista.add( DropdownMenuItem(
-        child: Text(motivo),
         value: motivo,
+        child: Text(motivo),
       ));
-    });
+    }
     return lista; 
-
-  }
-
-  Widget _crearDropdown() {
-
-    return Row(
-      children: [
-        Icon(Icons.select_all),
-        SizedBox(width: 30.0),
-      Expanded(
-        child: DropdownButton(
-          value: _opcionSeleccionada,
-          items: getOpcionesDropdown(),
-          onChanged: (opt) {
-            setState(() {
-            _opcionSeleccionada = opt!;
-            });
-          },
-        ),
-      )
-    ],
-  );
 
   }
 
   Widget _crearFechainicio(BuildContext context) {
 
-    return  TextField(
+    return  TextFormField(
       enableInteractiveSelection: false,
-      controller: _inputFieldDateController,
+      controller: _inputFechaInicio,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0)
         ),
         hintText: 'Fecha de inicio',
         labelText: 'Fecha de inicio',
-        suffixIcon: Icon( Icons.perm_contact_calendar),
-        icon: Icon( Icons.calendar_today), 
-        iconColor: Color.fromARGB(255, 199, 176, 112),
+        suffixIcon: const Icon( Icons.perm_contact_calendar),
+        icon: const Icon( Icons.calendar_today), 
+        iconColor: const Color.fromARGB(255, 199, 176, 112),
       ),
+      validator: (valor) => valor == null || valor.isEmpty || datosJustificacion['fecha_inicio'].toString().isEmpty? 'Este campo es necesario' : null,
+      onChanged: (valor) => datosJustificacion['fecha_inicio'] = valor,
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-        _selectDate( context );
+        FocusScope.of(context).requestFocus(FocusNode());
+        _selectDateInicio( context );
       },
     );
   }
 
   Widget _crearFechafin(BuildContext context) {
 
-    return  TextField(
+    return  TextFormField(
       enableInteractiveSelection: false,
-      controller: _inputFieldDateController,
+      controller: _inputFechaFin,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20.0)
         ),
         hintText: 'Fecha de nacimiento',
         labelText: 'Fecha de fin',
-        suffixIcon: Icon( Icons.perm_contact_calendar),
-        icon: Icon( Icons.calendar_today),
-        iconColor: Color.fromARGB(255, 199, 176, 112),
+        suffixIcon: const Icon( Icons.perm_contact_calendar),
+        icon: const Icon( Icons.calendar_today),
+        iconColor: const Color.fromARGB(255, 199, 176, 112),
       ),
+      validator: (valor) => valor == null || valor.isEmpty || datosJustificacion['fecha_fin'].toString().isEmpty ? 'Este campo es necesario' : null,
+        onChanged: (valor) => datosJustificacion['fecha_fin'] = valor,
       onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-        _selectDate( context );
+        FocusScope.of(context).requestFocus(FocusNode());
+        _selectDateFin( context );
       },
     );
   }
 
-  _selectDate(BuildContext context) async {
+  _selectDateInicio(BuildContext context) async {
+    final DateFormat format = DateFormat("yyyy-MM-dd");
 
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: new DateTime.now(),
-      firstDate: new DateTime(2018),
-      lastDate: new DateTime(2025),
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2018),
+      lastDate: DateTime(2025),
     );
 
     if ( picked != null) {
       setState(() {
         _fecha = picked.toString();
-        _inputFieldDateController.text = _fecha;
+        _inputFechaInicio.text = _fecha;
+        datosJustificacion['fecha_inicio'] = format.format(picked);
+      });
+    }
+
+
+  }
+  _selectDateFin(BuildContext context) async {
+    final DateFormat format = DateFormat("yyyy-MM-dd");
+
+    DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2018),
+      lastDate: DateTime(2025),
+    );
+
+    if ( picked != null) {
+      setState(() {
+        _fecha = picked.toString();
+        _inputFechaFin.text = _fecha;
+        datosJustificacion['fecha_fin'] = format.format(picked);
       });
     }
 
